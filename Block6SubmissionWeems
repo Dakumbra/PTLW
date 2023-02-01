@@ -1,0 +1,117 @@
+import turtle as trtl
+import random as rand
+
+
+#Create New Obstacles
+
+def draw_obstacle(new_obstacle):
+  x = rand.randint(-200,200)
+  y = rand.randint(-50, 150) 
+  new_obstacle.penup()
+  new_obstacle.shape(rand.choice(obstacle_shapes))
+  new_obstacle.color(rand.choice(obstacle_colors))
+  new_obstacle.goto(x,y)
+  #new_obstacle.stamp()
+
+#Look for collisions between player and obstacles
+#Remove obstacles and update score when touched
+def check_collision():
+  global player
+  global score
+  for obstacle in obstacles:
+    if (abs(player.xcor() - obstacle.xcor()) < pixel_size):
+      if (abs(player.ycor() - obstacle.ycor()) < pixel_size):
+       obstacle.hideturtle()
+       obstacles.remove(obstacle)
+       score += 1
+       score_writer.clear()
+       score_writer.write(score, font=font_setup)
+       
+       
+#Controls for Player movement
+
+def a_pressed():
+  global player
+  player.left(20)
+  check_collision()
+
+def w_pressed():
+  global player
+  player.forward(20)
+  check_collision()
+
+def s_pressed():
+  global player
+  player.backward(20)
+  check_collision()
+
+def d_pressed():
+  global player
+  player.right(20)
+  check_collision()
+
+#Timer for game
+
+def countdown():
+  global timer, timer_up, player
+  counter.clear()
+  if timer <= 0:
+    counter.write("Time's Up", font=font_setup)
+    timer_up = True
+    player.hideturtle()
+  else:
+    counter.write("Timer: " + str(timer), font=font_setup)
+    timer -= 1
+    counter.getscreen().ontimer(countdown, counter_interval) 
+
+# Request to user for number of obstacles
+num_obstacles = input("How many obstacles do you want to try?")
+
+
+#Initialization
+wn = trtl.Screen()
+obstacle_shapes = ["square", "arrow", "circle", "turtle", "triangle", "classic"]
+obstacle_colors = ["red", "yellow", "blue", "green", "orange", "purple", "black"]
+pixel_size = 20
+obstacles = []
+score = 0
+
+player = trtl.Turtle()
+player.penup()
+player.setposition(250,250)
+
+
+score_writer=trtl.Turtle()
+score_writer.hideturtle()
+score_writer.penup()
+score_writer.goto(250,250)
+score_writer.pendown()
+font_setup = ("Arial", 20, "normal")
+
+counter =  trtl.Turtle()
+counter.hideturtle()
+counter.penup()
+counter.setposition(250,290)
+counter.pendown()
+timer = 25
+counter_interval = 1000   #1000 represents 1 second
+timer_up = False
+wn.ontimer(countdown, counter_interval) 
+
+for obstacle in range(0, int(num_obstacles)):
+  new_obstacle=trtl.Turtle()
+  draw_obstacle(new_obstacle)
+  obstacles.append(new_obstacle)
+
+#Listening for player movement keys
+
+wn.onkeypress(a_pressed, "a")
+wn.onkeypress(w_pressed, "w")
+wn.onkeypress(s_pressed, "s")
+wn.onkeypress(d_pressed, "d")
+
+wn.listen()
+wn.update()
+
+
+trtl.mainloop()
